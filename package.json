@@ -1,0 +1,17 @@
+{
+  "name": "rt-rw-digital",
+  "version": "1.0.0",
+  "description": "Sistem Informasi RT/RW berbasis Node.js dan MySQL",
+  "main": "server.js",
+  "scripts": {"start": "node server.js", "dev": "nodemon server.js"},
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "mysql2": "^3.12.0",
+    "pdfkit": "^0.16.0"
+  },
+  "devDependencies": {"nodemon": "^3.1.9"}
+}

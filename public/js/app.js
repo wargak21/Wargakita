@@ -1,0 +1,1 @@
+function filterTable(){const q=(document.getElementById('tableSearch')?.value||'').toLowerCase();document.querySelectorAll('#dataTable tbody tr').forEach(row=>row.style.display=row.innerText.toLowerCase().includes(q)?'':'none');}
