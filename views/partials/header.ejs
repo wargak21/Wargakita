@@ -10,8 +10,8 @@
   <link rel="stylesheet" href="/css/app.css">
   <script src="/js/app.js" defer></script>
 </head>
-<body class="<%= user ? 'app' : 'auth' %>">
-<% if (user) { %>
+<body class="<%= (typeof user !== 'undefined' && user) ? 'app' : 'auth' %>">
+<% if (typeof user !== 'undefined' && user) { %>
   <%- include('sidebar') %>
   <div class="main-wrap">
     <header class="topbar">
