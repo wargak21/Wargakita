@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<div class="login">
+  <section class="login-hero">
+    <div class="login-hero-in">
+      <span class="brand-ic big"><%- icon('home', 40) %></span>
+      <h1>Sistem Informasi<br>RT / RW</h1>
+      <p>Bersama Membangun Lingkungan<br>yang Lebih Baik</p>
+    </div>
+  </section>
+  <section class="login-card">
+    <form method="post" action="/login" class="login-form">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <h2>Selamat Datang</h2>
+      <p class="muted">Login untuk mengakses sistem informasi RT/RW.</p>
+      <% if (flash) { %><div class="alert alert-<%= flash.type %>"><%= flash.text %></div><% } %>
+      <label class="input-ic"><%- icon('user') %>
+        <input type="text" name="username" placeholder="Username / Email" autocomplete="username" required autofocus>
+      </label>
+      <label class="input-ic"><%- icon('lock') %>
+        <input type="password" name="password" id="pw" placeholder="Password" autocomplete="current-password" required>
+        <button type="button" class="icon-btn" data-toggle-password="pw" aria-label="Tampilkan password"><%- icon('eye') %></button>
+      </label>
+      <div class="row-between">
+        <label class="check"><input type="checkbox" name="remember" value="1"> Ingat saya</label>
+        <span class="muted small">Lupa password? Hubungi pengurus</span>
+      </div>
+      <button class="btn primary block" type="submit">Masuk</button>
+      <p class="muted center small">Belum punya akun? Hubungi Ketua RT/RW.</p>
+    </form>
+  </section>
+</div>
+<%- include('../partials/footer') %>

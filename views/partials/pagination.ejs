@@ -1,0 +1,14 @@
+<% if (pg.total > 0) { %>
+<div class="pagination">
+  <span class="muted">Menampilkan <%= (pg.page - 1) * pg.per + 1 %>–<%= Math.min(pg.page * pg.per, pg.total) %> dari <%= pg.total %> data</span>
+  <% if (pg.pages > 1) { %>
+  <div class="pages">
+    <% for (let i = 1; i <= pg.pages; i++) { %>
+      <% if (i === 1 || i === pg.pages || Math.abs(i - pg.page) <= 1) { %>
+        <a class="<%= i === pg.page ? 'active' : '' %>" href="<%= base %>?<%= qs({ page: i }) %>"><%= i %></a>
+      <% } else if (Math.abs(i - pg.page) === 2) { %><span>…</span><% } %>
+    <% } %>
+  </div>
+  <% } %>
+</div>
+<% } %>

@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div><h1>Pengaduan Warga</h1><p class="muted">Dashboard / Pengaduan Warga</p></div>
+</div>
+<div class="stats-grid three">
+  <%- include('../partials/stat', { label: 'Total Pengaduan', value: st.total, ic: 'message', color: 'blue' }) %>
+  <%- include('../partials/stat', { label: 'Dalam Proses', value: st.proses, ic: 'bell', color: 'orange' }) %>
+  <%- include('../partials/stat', { label: 'Selesai', value: st.selesai, ic: 'check', color: 'green' }) %>
+</div>
+<details class="card">
+  <summary class="btn primary"><%- icon('plus') %> Buat Pengaduan</summary>
+  <form class="form" method="post" action="/pengaduan">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="form-grid">
+      <label class="field">Kategori<select name="kategori" required><% KATEGORI.forEach(function (k) { %><option><%= k %></option><% }) %></select></label>
+      <label class="field">Judul<input name="judul" required maxlength="150"></label>
+      <label class="field full">Uraian<textarea name="isi" rows="3"></textarea></label>
+    </div>
+    <div class="actions"><button class="btn primary" type="submit">Kirim</button></div>
+  </form>
+</details>
+<form class="card filters" method="get" action="/pengaduan">
+  <label class="input-ic grow"><%- icon('search') %><input type="text" name="q" value="<%= f.q %>" placeholder="Cari judul / pelapor"></label>
+  <select name="kategori" data-autosubmit><option value="">Semua Kategori</option><% KATEGORI.forEach(function (k) { %><option <%= f.kategori === k ? 'selected' : '' %>><%= k %></option><% }) %></select>
+  <select name="status" data-autosubmit><option value="">Semua Status</option><% STATUS.forEach(function (s) { %><option <%= f.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
+  <button class="btn primary" type="submit">Cari</button>
+</form>
+<div class="card">
+  <div class="card-head"><h3>Daftar Pengaduan</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tanggal</th><th>Pelapor</th><th>Kategori</th><th>Judul</th><th>Status</th><% if (user.role !== 'warga') { %><th>Tanggapi</th><% } %></tr></thead>
+      <tbody>
+        <% if (!rows.length) { %><tr><td colspan="6" class="empty">Belum ada pengaduan.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+        <tr>
+          <td data-label="Tanggal"><%= tanggal(r.tanggal) %></td>
+          <td data-label="Pelapor"><%= r.nama_pelapor %></td>
+          <td data-label="Kategori"><%= r.kategori %></td>
+          <td data-label="Judul"><strong><%= r.judul %></strong><% if (r.isi) { %><br><small class="muted"><%= r.isi %></small><% } %><% if (r.tanggapan) { %><br><small class="resp">Tanggapan: <%= r.tanggapan %></small><% } %></td>
+          <td data-label="Status"><span class="badge <%= badge(r.status) %>"><%= r.status %></span></td>
+          <% if (user.role !== 'warga') { %>
+          <td class="acts wide">
+            <form method="post" action="/pengaduan/<%= r.id %>/status" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <select name="status"><% STATUS.forEach(function (s) { %><option <%= r.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
+              <input type="text" name="tanggapan" placeholder="Tanggapan" value="<%= r.tanggapan || '' %>">
+              <button class="btn sm primary" type="submit">Simpan</button>
+            </form>
+          </td>
+          <% } %>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('../partials/footer') %>

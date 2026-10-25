@@ -1,0 +1,18 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1><%= item ? 'Ubah KK' : 'Tambah KK' %></h1><p class="muted">Dashboard / Kartu Keluarga</p></div></div>
+<form class="card form" method="post" action="<%= item ? '/kk/' + item.id : '/kk' %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="form-grid">
+    <label class="field">No. KK (16 digit)<input name="no_kk" required pattern="\d{16}" maxlength="16" value="<%= item ? item.no_kk : '' %>"></label>
+    <label class="field">Kepala Keluarga<input name="kepala_keluarga" required value="<%= item ? item.kepala_keluarga : '' %>"></label>
+    <label class="field">Alamat<input name="alamat" value="<%= item ? item.alamat || '' : '' %>"></label>
+    <% if (user.role === 'rw') { %>
+    <label class="field">RT<input name="rt" required maxlength="3" placeholder="03" value="<%= item ? item.rt : '' %>"></label>
+    <% } %>
+    <label class="field">Status
+      <select name="status"><option <%= item && item.status === 'Nonaktif' ? '' : 'selected' %>>Aktif</option><option <%= item && item.status === 'Nonaktif' ? 'selected' : '' %>>Nonaktif</option></select>
+    </label>
+  </div>
+  <div class="actions"><a class="btn" href="/kk">Batal</a><button class="btn primary" type="submit">Simpan</button></div>
+</form>
+<%- include('../partials/footer') %>

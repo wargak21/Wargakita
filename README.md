@@ -1,44 +1,47 @@
 # WargaKita — Sistem Informasi RT/RW
 
-MVP aplikasi Node.js + Express + EJS + MySQL dengan tiga role:
-- **RW / Staff RW**: melihat data warga dan keluarga seluruh RT dalam RW, memproses persetujuan tahap RW, mengatur informasi surat.
-- **RT**: melihat data warga/keluarga hanya pada RT yang ditugaskan, memproses persetujuan tahap RT.
-- **Warga**: melihat anggota keluarga sendiri, mengajukan surat online, melihat jumlah warga di RT dan RW, mengunduh PDF setelah persetujuan RT dan RW.
+Node.js + Express + EJS + **Supabase (PostgreSQL)**, di-deploy di **Vercel**.
 
-## Prasyarat
-- Node.js 20 atau lebih baru
-- MySQL 8.x (atau kompatibel)
-- VS Code (opsional)
+## Fitur
+Login · Dashboard · Data Warga (CRUD, filter, import/export CSV) · Kartu Keluarga · Surat Pengantar (alur RT → RW, PDF) ·
+Pembayaran Iuran · Pengaduan Warga · Pengumuman · Laporan Keuangan (export CSV) · Profil RT/RW · Pengaturan (ubah password, kelola pengguna) · Tampilan responsif (mobile).
 
-## Instalasi Windows / PowerShell
-1. Ekstrak ZIP ke folder kerja, lalu buka folder `rt-rw-digital` di VS Code.
-2. Buka terminal di folder proyek.
-3. Jalankan `npm install`.
-4. Salin `.env.example` menjadi `.env`, lalu sesuaikan DB host/user/password dan `SESSION_SECRET`.
-5. Jalankan schema: `mysql -u root -p < database/schema.sql` (jika password MySQL kosong, hilangkan `-p`; atau buka `database/schema.sql` melalui MySQL Workbench dan jalankan).
-6. Buat akun dengan password hash bcrypt melalui `node scripts/create-user.js` (petunjuk ada di bawah). Jangan gunakan akun demo untuk deployment.
-7. Jalankan `npm start`, lalu buka `http://localhost:3000`.
+Role: **rw** (seluruh RW), **rt** (hanya RT-nya), **warga** (hanya keluarganya).
+Keamanan: bcrypt, session di PostgreSQL, CSRF token, rate limit login, Helmet (CSP), RLS Supabase aktif.
 
-## Membuat akun pertama
-Buat file `.env` lebih dulu, kemudian jalankan:
-```powershell
-node scripts/create-user.js
+## Struktur
 ```
-Script meminta input melalui variabel environment. Contoh:
-```powershell
-$env:SEED_NAME="Staff RW"
-$env:SEED_EMAIL="rw@example.test"
-$env:SEED_PASSWORD="GantiPassword123!"
-$env:SEED_ROLE="rw"
-$env:SEED_RW="05"
-node scripts/create-user.js
+api/index.js        entry Vercel
+server.js           entry lokal
+src/app.js          konfigurasi Express
+src/config/db.js    koneksi PostgreSQL
+src/middleware/     auth, csrf, locals
+src/routes/         satu file per modul
+src/utils/          format, csv, scope (pembatasan data per role), ikon
+views/              partials/ + satu folder per modul
+public/             css, js
+database/schema.sql skema PostgreSQL
+scripts/            init-db.js, create-user.js
 ```
-Untuk role `rt`, set `$env:SEED_RT="01"` dan `$env:SEED_ROLE="rt"`. Untuk role `warga`, buat data keluarga + warga terlebih dahulu dan set `SEED_FAMILY_ID`.
 
-## Fitur & batasan MVP
-- Autentikasi sesi, password bcrypt, pembatasan akses di server.
-- Pengajuan surat dan approval berurutan RT → RW.
-- PDF hanya dapat diunduh jika status `Disetujui`.
-- PDF saat ini menampilkan teks placeholder cap RT/RW dan nama pejabat, **belum** memasukkan gambar cap resmi atau tanda tangan digital tersertifikasi.
-- Pengelolaan CRUD warga/keluarga, unggah foto/video, notifikasi, audit log, CSRF protection, reset password, dan pengaturan session store produksi belum termasuk MVP ini.
-- Sebelum produksi: pasang HTTPS, CSRF protection, rate limit login, session store persisten, audit log, backup DB, validasi hukum surat, serta gambar stempel dan tanda tangan dengan otorisasi tertulis.
+## Menjalankan lokal
+```bash
+npm install
+cp .env.example .env        # isi DATABASE_URL dan SESSION_SECRET
+npm run db:init             # menerapkan database/schema.sql
+# buat akun RW pertama (PowerShell):
+$env:SEED_NAME="Ketua RW"; $env:SEED_USERNAME="rw05"; $env:SEED_PASSWORD="GantiPassword123!"
+$env:SEED_ROLE="rw"; $env:SEED_RW="05"; npm run create-user
+npm run dev                 # http://localhost:3000
+```
+Setelah login sebagai RW: isi Profil, tambah KK, tambah warga, lalu buat akun RT/warga di menu **Pengaturan**.
+
+## Deploy Vercel
+1. Environment Variables: `DATABASE_URL` (Supabase *Transaction pooler*, port 6543), `SESSION_SECRET`, `DB_SSL=true`.
+2. Project Settings → Framework Preset = **Other**.
+3. Push ke GitHub; Vercel akan build otomatis.
+
+## Catatan
+- Rate limit login memakai memori per-instance (di serverless sifatnya best-effort).
+- PDF surat memuat teks nama pejabat; stempel/tanda tangan gambar belum disematkan.
+- Satu lingkungan (satu RW) per database.

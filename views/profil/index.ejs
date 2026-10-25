@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1>Profil RT/RW</h1><p class="muted">Informasi lingkungan</p></div></div>
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Informasi Lingkungan</h3></div>
+    <dl class="dl">
+      <div><dt>Nama Lingkungan</dt><dd><%= profil.nama || '-' %></dd></div>
+      <div><dt>RT / RW</dt><dd><%= user.rt || '-' %> / <%= user.rw || '-' %></dd></div>
+      <div><dt>Kelurahan</dt><dd><%= profil.kelurahan || '-' %></dd></div>
+      <div><dt>Kecamatan</dt><dd><%= profil.kecamatan || '-' %></dd></div>
+      <div><dt>Kota</dt><dd><%= profil.kota || '-' %></dd></div>
+      <div><dt>Alamat</dt><dd><%= profil.alamat || '-' %></dd></div>
+      <div><dt>Iuran Bulanan</dt><dd><%= rupiah(profil.iuran_bulanan) %></dd></div>
+    </dl>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Pengurus</h3></div>
+    <% if (!pengurus.length) { %><p class="muted">Belum ada data pengurus.</p><% } %>
+    <ul class="list">
+      <% pengurus.forEach(function (p) { %>
+      <li><span class="dot"><%- icon('user', 16) %></span><div><strong><%= p.name %></strong><small><%= p.role === 'rw' ? 'Ketua / Staff RW' : 'Ketua RT ' + p.rt %><%= p.phone ? ' · ' + p.phone : '' %></small></div></li>
+      <% }) %>
+    </ul>
+    <p class="muted small">Kontak RT: <%= profil.telp_rt || '-' %> · Kontak RW: <%= profil.telp_rw || '-' %></p>
+  </div>
+</div>
+<% if (user.role === 'rw') { %>
+<details class="card">
+  <summary class="btn"><%- icon('edit') %> Ubah Profil Lingkungan</summary>
+  <form class="form" method="post" action="/profil">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="form-grid">
+      <label class="field">Nama Lingkungan<input name="nama" value="<%= profil.nama || '' %>"></label>
+      <label class="field">Kelurahan<input name="kelurahan" value="<%= profil.kelurahan || '' %>"></label>
+      <label class="field">Kecamatan<input name="kecamatan" value="<%= profil.kecamatan || '' %>"></label>
+      <label class="field">Kota<input name="kota" value="<%= profil.kota || '' %>"></label>
+      <label class="field full">Alamat<input name="alamat" value="<%= profil.alamat || '' %>"></label>
+      <label class="field">Telepon Ketua RT<input name="telp_rt" value="<%= profil.telp_rt || '' %>"></label>
+      <label class="field">Telepon Ketua RW<input name="telp_rw" value="<%= profil.telp_rw || '' %>"></label>
+      <label class="field">Iuran Bulanan (Rp)<input type="number" name="iuran_bulanan" min="0" step="1000" value="<%= profil.iuran_bulanan || 100000 %>"></label>
+    </div>
+    <div class="actions"><button class="btn primary" type="submit">Simpan</button></div>
+  </form>
+</details>
+<% } %>
+<%- include('../partials/footer') %>

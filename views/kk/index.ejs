@@ -1,0 +1,54 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div><h1>Data Kartu Keluarga</h1><p class="muted">Dashboard / Kartu Keluarga</p></div>
+  <% if (user.role !== 'warga') { %>
+  <div class="actions">
+    <a class="btn primary" href="/kk/baru"><%- icon('plus') %> Tambah KK</a>
+    <a class="btn" href="/kk/export"><%- icon('download') %> Export</a>
+  </div>
+  <% } %>
+</div>
+<div class="stats-grid three">
+  <%- include('../partials/stat', { label: 'Total KK', value: st.total, ic: 'card', color: 'blue' }) %>
+  <%- include('../partials/stat', { label: 'KK Aktif', value: st.aktif, ic: 'check', color: 'green' }) %>
+  <%- include('../partials/stat', { label: 'KK Nonaktif', value: st.nonaktif, ic: 'x', color: 'red' }) %>
+</div>
+<form class="card filters" method="get" action="/kk">
+  <label class="input-ic grow"><%- icon('search') %><input type="text" name="q" value="<%= f.q %>" placeholder="Cari no. KK atau kepala keluarga"></label>
+  <% if (user.role === 'rw') { %>
+  <select name="rt" data-autosubmit><option value="">Semua RT</option><% rtList.forEach(function (r) { %><option value="<%= r %>" <%= f.rt === r ? 'selected' : '' %>>RT <%= r %></option><% }) %></select>
+  <% } %>
+  <button class="btn primary" type="submit">Cari</button>
+</form>
+<div class="card">
+  <div class="card-head"><h3>Daftar Kartu Keluarga</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>No. KK</th><th>Kepala Keluarga</th><th>Anggota</th><th>RT/RW</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>
+        <% if (!rows.length) { %><tr><td colspan="6" class="empty">Belum ada data KK.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+        <tr>
+          <td data-label="No. KK"><%= r.no_kk %></td>
+          <td data-label="Kepala Keluarga"><strong><%= r.kepala_keluarga %></strong></td>
+          <td data-label="Anggota"><%= r.anggota %></td>
+          <td data-label="RT/RW"><%= r.rt %>/<%= r.rw %></td>
+          <td data-label="Status"><span class="badge <%= badge(r.status) %>"><%= r.status %></span></td>
+          <td class="acts">
+            <a class="icon-btn" href="/kk/<%= r.id %>" title="Lihat"><%- icon('eye', 16) %></a>
+            <% if (user.role !== 'warga') { %>
+            <a class="icon-btn blue" href="/kk/<%= r.id %>/edit" title="Ubah"><%- icon('edit', 16) %></a>
+            <form method="post" action="/kk/<%= r.id %>/hapus" data-confirm="Hapus KK ini?">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="icon-btn red" type="submit" title="Hapus"><%- icon('trash', 16) %></button>
+            </form>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <%- include('../partials/pagination', { base: '/kk' }) %>
+</div>
+<%- include('../partials/footer') %>

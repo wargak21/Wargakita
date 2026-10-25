@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div><h1>Kartu Keluarga</h1><p class="muted">No. KK <%= fam.no_kk %></p></div>
+  <div class="actions"><a class="btn" href="/kk">Kembali</a></div>
+</div>
+<div class="card">
+  <dl class="dl">
+    <div><dt>Kepala Keluarga</dt><dd><%= fam.kepala_keluarga %></dd></div>
+    <div><dt>Alamat</dt><dd><%= fam.alamat || '-' %></dd></div>
+    <div><dt>RT / RW</dt><dd><%= fam.rt %> / <%= fam.rw %></dd></div>
+    <div><dt>Status</dt><dd><span class="badge <%= badge(fam.status) %>"><%= fam.status %></span></dd></div>
+  </dl>
+</div>
+<div class="card">
+  <div class="card-head"><h3>Anggota Keluarga (<%= members.length %>)</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>NIK</th><th>Nama</th><th>L/P</th><th>Tempat, Tgl Lahir</th><th>Hubungan</th><th>Status</th></tr></thead>
+      <tbody>
+        <% if (!members.length) { %><tr><td colspan="6" class="empty">Belum ada anggota.</td></tr><% } %>
+        <% members.forEach(function (m) { %>
+        <tr>
+          <td data-label="NIK"><%= m.nik %></td><td data-label="Nama"><strong><%= m.nama %></strong></td><td data-label="L/P"><%= m.jenis_kelamin %></td>
+          <td data-label="Lahir"><%= m.tempat_lahir || '-' %>, <%= tanggal(m.tgl_lahir) %></td><td data-label="Hubungan"><%= m.hubungan || '-' %></td>
+          <td data-label="Status"><span class="badge <%= badge(m.status) %>"><%= m.status %></span></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('../partials/footer') %>

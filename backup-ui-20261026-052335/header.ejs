@@ -1,0 +1,9 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title><%= title || 'RT/RW Digital' %></title><link rel="stylesheet" href="/css/style.css"></head><body>
+<div class="app-shell"><aside class="sidebar"><a class="brand" href="/dashboard"><span class="brand-icon">⌂</span><span><b>WargaKita</b><small>Sistem Informasi RT/RW</small></span></a><nav>
+<a class="<%= path==='/dashboard'?'active':'' %>" href="/dashboard">▦ &nbsp; Dashboard</a>
+<% if(user && ['rw','rt'].includes(user.role)){ %><a class="<%= path==='/warga'?'active':'' %>" href="/warga">♙ &nbsp; Data Warga</a><a class="<%= path==='/keluarga'?'active':'' %>" href="/keluarga">▣ &nbsp; Kartu Keluarga</a><% } %>
+<% if(user && user.role==='warga'){ %><a class="<%= path==='/keluarga-saya'?'active':'' %>" href="/keluarga-saya">▣ &nbsp; Keluarga Saya</a><% } %>
+<a class="<%= path.startsWith('/surat')?'active':'' %>" href="/surat">▤ &nbsp; Surat Pengantar</a>
+<% if(user && user.role==='rw'){ %><a class="<%= path==='/pengaturan'?'active':'' %>" href="/pengaturan">⚙ &nbsp; Pengaturan</a><% } %>
+</nav><div class="sidebar-bottom"><div class="avatar"><%= (user?.name||'U').slice(0,1).toUpperCase() %></div><div class="user-mini"><b><%= user?.name %></b><small><%= ({rw:'Staff RW',rt:'Ketua RT',warga:'Warga'})[user?.role] %></small></div><form method="post" action="/logout"><button class="logout" title="Keluar">↪</button></form></div></aside>
+<main class="main"><header class="topbar"><div><span class="muted">Sistem Informasi</span><b> / <%= title || 'Dashboard' %></b></div><div class="top-user"><span class="online"></span><%= user?.name %></div></header><section class="content">

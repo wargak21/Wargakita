@@ -1,0 +1,16 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1>Ajukan Surat Baru</h1><p class="muted">Alur: RT → RW → PDF dapat diunduh</p></div></div>
+<form class="card form" method="post" action="/surat">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="form-grid">
+    <label class="field">Jenis Surat
+      <select name="jenis" required><option value="">— Pilih —</option><% JENIS.forEach(function (j) { %><option><%= j %></option><% }) %></select>
+    </label>
+    <label class="field">Pemohon
+      <select name="resident_id" required><option value="">— Pilih warga —</option><% residents.forEach(function (r) { %><option value="<%= r.id %>"><%= r.nama %> (<%= r.nik %>)</option><% }) %></select>
+    </label>
+    <label class="field full">Keperluan<textarea name="keperluan" rows="3" placeholder="Contoh: melengkapi persyaratan administrasi bank"></textarea></label>
+  </div>
+  <div class="actions"><a class="btn" href="/surat">Batal</a><button class="btn primary" type="submit">Kirim Pengajuan</button></div>
+</form>
+<%- include('../partials/footer') %>

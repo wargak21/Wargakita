@@ -1,0 +1,8 @@
+<div class="stat">
+  <div class="stat-ic <%= color %>"><%- icon(ic, 22) %></div>
+  <div>
+    <div class="stat-label"><%= label %></div>
+    <div class="stat-val"><%= typeof value === 'number' ? value.toLocaleString('id-ID') : value %></div>
+    <% if (locals.sub) { %><div class="stat-sub"><%= sub %></div><% } %>
+  </div>
+</div>

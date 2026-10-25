@@ -1,0 +1,66 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div><h1>Laporan Keuangan</h1><p class="muted">Dashboard / Laporan Keuangan</p></div>
+  <div class="actions"><a class="btn" href="/keuangan/export?periode=<%= periode %>&jenis=<%= jenis %>"><%- icon('download') %> Download Laporan</a></div>
+</div>
+<form class="card filters" method="get" action="/keuangan">
+  <label class="field inline">Periode<input type="month" name="periode" value="<%= periode %>" data-autosubmit></label>
+  <select name="jenis" data-autosubmit>
+    <option value="">Semua Jenis</option>
+    <option <%= jenis === 'Pemasukan' ? 'selected' : '' %>>Pemasukan</option>
+    <option <%= jenis === 'Pengeluaran' ? 'selected' : '' %>>Pengeluaran</option>
+  </select>
+  <button class="btn primary" type="submit">Tampilkan</button>
+</form>
+<div class="stats-grid three">
+  <%- include('../partials/stat', { label: 'Total Pemasukan', value: rupiah(sum.masuk), ic: 'download', color: 'green' }) %>
+  <%- include('../partials/stat', { label: 'Total Pengeluaran', value: rupiah(sum.keluar), ic: 'upload', color: 'red' }) %>
+  <%- include('../partials/stat', { label: 'Saldo', value: rupiah(sum.masuk - sum.keluar), ic: 'dollar', color: 'blue' }) %>
+</div>
+<% if (user.role !== 'warga') { %>
+<details class="card">
+  <summary class="btn primary"><%- icon('plus') %> Catat Transaksi</summary>
+  <form class="form" method="post" action="/keuangan">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="form-grid">
+      <label class="field">Tanggal<input type="date" name="tanggal" value="<%= todayStr() %>" required></label>
+      <label class="field">Jenis<select name="jenis"><option>Pemasukan</option><option>Pengeluaran</option></select></label>
+      <label class="field">Keterangan<input name="keterangan" required></label>
+      <label class="field">Jumlah (Rp)<input type="number" name="jumlah" min="1" required></label>
+      <% if (user.role === 'rw') { %>
+      <label class="field">RT (opsional)<select name="rt"><option value="">Kas RW</option><% rtList.forEach(function (r) { %><option value="<%= r %>">RT <%= r %></option><% }) %></select></label>
+      <% } %>
+    </div>
+    <div class="actions"><button class="btn primary" type="submit">Simpan</button></div>
+  </form>
+</details>
+<% } %>
+<div class="card">
+  <div class="card-head"><h3>Rincian Transaksi — <%= bulanTahun(periode) %></h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tanggal</th><th>Keterangan</th><th>Jenis</th><th>RT</th><th class="num">Jumlah</th><% if (user.role !== 'warga') { %><th>Aksi</th><% } %></tr></thead>
+      <tbody>
+        <% if (!rows.length) { %><tr><td colspan="6" class="empty">Belum ada transaksi pada periode ini.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+        <tr>
+          <td data-label="Tanggal"><%= tanggal(r.tanggal) %></td>
+          <td data-label="Keterangan"><%= r.keterangan %></td>
+          <td data-label="Jenis"><span class="badge <%= badge(r.jenis) %>"><%= r.jenis %></span></td>
+          <td data-label="RT"><%= r.rt || 'RW' %></td>
+          <td data-label="Jumlah" class="num"><%= rupiah(r.jumlah) %></td>
+          <% if (user.role !== 'warga') { %>
+          <td class="acts">
+            <form method="post" action="/keuangan/<%= r.id %>/hapus" data-confirm="Hapus transaksi ini?">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="icon-btn red" type="submit" title="Hapus"><%- icon('trash', 16) %></button>
+            </form>
+          </td>
+          <% } %>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('../partials/footer') %>

@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div><h1>Pengajuan Surat</h1><p class="muted">Dashboard / Surat Pengantar</p></div>
+  <div class="actions"><a class="btn primary" href="/surat/baru"><%- icon('plus') %> Ajukan Surat Baru</a></div>
+</div>
+<div class="tabs">
+  <a class="<%= !f.status ? 'active' : '' %>" href="/surat">Semua Surat</a>
+  <% STATUS.forEach(function (s) { %><a class="<%= f.status === s ? 'active' : '' %>" href="/surat?status=<%= encodeURIComponent(s) %>"><%= s %></a><% }) %>
+</div>
+<form class="card filters" method="get" action="/surat">
+  <label class="input-ic grow"><%- icon('search') %><input type="text" name="q" value="<%= f.q %>" placeholder="Cari nomor surat atau nama pemohon"></label>
+  <% if (f.status) { %><input type="hidden" name="status" value="<%= f.status %>"><% } %>
+  <button class="btn primary" type="submit">Cari</button>
+</form>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>No. Surat</th><th>Jenis Surat</th><th>Pemohon</th><th>Tanggal</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>
+        <% if (!rows.length) { %><tr><td colspan="6" class="empty">Belum ada pengajuan surat.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+        <tr>
+          <td data-label="No. Surat"><%= r.nomor %></td>
+          <td data-label="Jenis"><%= r.jenis %></td>
+          <td data-label="Pemohon"><strong><%= r.pemohon_nama %></strong><br><small class="muted"><%= r.keperluan || '' %></small></td>
+          <td data-label="Tanggal"><%= tanggal(r.created_at) %></td>
+          <td data-label="Status"><span class="badge <%= badge(r.status) %>"><%= r.status %></span><% if (r.catatan) { %><br><small class="muted"><%= r.catatan %></small><% } %></td>
+          <td class="acts wide">
+            <% if (r.status === 'Selesai') { %>
+              <a class="btn sm" href="/surat/<%= r.id %>/pdf" target="_blank" rel="noopener"><%- icon('download', 14) %> PDF</a>
+            <% } %>
+            <% if ((user.role === 'rt' && r.status === 'Menunggu RT') || (user.role === 'rw' && r.status === 'Diverifikasi RT')) { %>
+              <form method="post" action="/surat/<%= r.id %>/<%= user.role %>" class="inline-form">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="text" name="catatan" placeholder="Catatan (opsional)">
+                <button class="btn sm primary" name="aksi" value="setuju" type="submit"><%- icon('check', 14) %> Setujui</button>
+                <button class="btn sm danger" name="aksi" value="tolak" type="submit"><%- icon('x', 14) %> Tolak</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <%- include('../partials/pagination', { base: '/surat' }) %>
+</div>
+<%- include('../partials/footer') %>

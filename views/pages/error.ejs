@@ -1,0 +1,7 @@
+<%- include('../partials/header') %>
+<div class="<%= user ? 'card center err' : 'card center err auth-err' %>">
+  <h1><%= code %></h1>
+  <p><%= message %></p>
+  <a class="btn primary" href="<%= user ? '/' : '/login' %>"><%= user ? 'Kembali ke Dashboard' : 'Ke halaman login' %></a>
+</div>
+<%- include('../partials/footer') %>

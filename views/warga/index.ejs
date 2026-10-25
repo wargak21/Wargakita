@@ -1,0 +1,65 @@
+<%- include('../partials/header') %>
+<div class="page-head">
+  <div><h1>Data Warga</h1><p class="muted">Dashboard / Data Warga</p></div>
+  <% if (user.role !== 'warga') { %>
+  <div class="actions">
+    <a class="btn primary" href="/warga/baru"><%- icon('plus') %> Tambah Warga</a>
+    <a class="btn" href="/warga/import"><%- icon('upload') %> Import</a>
+    <a class="btn" href="/warga/export"><%- icon('download') %> Export</a>
+  </div>
+  <% } %>
+</div>
+
+<div class="stats-grid">
+  <%- include('../partials/stat', { label: 'Total Warga', value: st.total, ic: 'users', color: 'blue' }) %>
+  <%- include('../partials/stat', { label: 'Laki-laki', value: st.l, ic: 'user', color: 'blue' }) %>
+  <%- include('../partials/stat', { label: 'Perempuan', value: st.pr, ic: 'user', color: 'red' }) %>
+  <%- include('../partials/stat', { label: 'Jumlah KK', value: st.kk, ic: 'card', color: 'green' }) %>
+</div>
+
+<form class="card filters" method="get" action="/warga">
+  <label class="input-ic grow"><%- icon('search') %><input type="text" name="q" value="<%= f.q %>" placeholder="Cari nama, NIK, atau no. KK"></label>
+  <% if (user.role === 'rw') { %>
+  <select name="rt" data-autosubmit><option value="">Semua RT</option><% rtList.forEach(function (r) { %><option value="<%= r %>" <%= f.rt === r ? 'selected' : '' %>>RT <%= r %></option><% }) %></select>
+  <% } %>
+  <select name="status" data-autosubmit>
+    <option value="">Semua Status</option>
+    <option <%= f.status === 'Aktif' ? 'selected' : '' %>>Aktif</option>
+    <option <%= f.status === 'Nonaktif' ? 'selected' : '' %>>Nonaktif</option>
+  </select>
+  <button class="btn primary" type="submit">Cari</button>
+</form>
+
+<div class="card">
+  <div class="card-head"><h3>Daftar Warga</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>NIK</th><th>Nama</th><th>L/P</th><th>Tgl Lahir</th><th>Hubungan</th><th>RT/RW</th><th>Status</th><% if (user.role !== 'warga') { %><th>Aksi</th><% } %></tr></thead>
+      <tbody>
+        <% if (!rows.length) { %><tr><td colspan="8" class="empty">Belum ada data warga.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+          <tr>
+            <td data-label="NIK"><%= r.nik %></td>
+            <td data-label="Nama"><strong><%= r.nama %></strong></td>
+            <td data-label="L/P"><%= r.jenis_kelamin %></td>
+            <td data-label="Tgl Lahir"><%= tanggal(r.tgl_lahir) %></td>
+            <td data-label="Hubungan"><%= r.hubungan || '-' %></td>
+            <td data-label="RT/RW"><%= r.rt %>/<%= r.rw %></td>
+            <td data-label="Status"><span class="badge <%= badge(r.status) %>"><%= r.status %></span></td>
+            <% if (user.role !== 'warga') { %>
+            <td class="acts">
+              <a class="icon-btn blue" href="/warga/<%= r.id %>/edit" title="Ubah"><%- icon('edit', 16) %></a>
+              <form method="post" action="/warga/<%= r.id %>/hapus" data-confirm="Hapus data warga ini?">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <button class="icon-btn red" type="submit" title="Hapus"><%- icon('trash', 16) %></button>
+              </form>
+            </td>
+            <% } %>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <%- include('../partials/pagination', { base: '/warga' }) %>
+</div>
+<%- include('../partials/footer') %>

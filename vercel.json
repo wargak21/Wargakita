@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "{views,src,public}/**",
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+}

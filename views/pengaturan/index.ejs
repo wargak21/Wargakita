@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1>Pengaturan</h1><p class="muted">Keamanan akun & pengguna</p></div></div>
+<form class="card form" method="post" action="/pengaturan/password">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="card-head"><h3>Ubah Password</h3></div>
+  <div class="form-grid">
+    <label class="field">Password Lama<input type="password" name="lama" autocomplete="current-password" required></label>
+    <label class="field">Password Baru (min. 8)<input type="password" name="baru" autocomplete="new-password" minlength="8" required></label>
+    <label class="field">Konfirmasi Password Baru<input type="password" name="konfirmasi" autocomplete="new-password" minlength="8" required></label>
+  </div>
+  <div class="actions"><button class="btn primary" type="submit"><%- icon('lock') %> Simpan Password</button></div>
+</form>
+
+<% if (user.role === 'rw') { %>
+<details class="card">
+  <summary class="btn primary"><%- icon('plus') %> Tambah Pengguna</summary>
+  <form class="form" method="post" action="/pengaturan/users">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="form-grid">
+      <label class="field">Nama<input name="name" required></label>
+      <label class="field">Username<input name="username" required autocomplete="off"></label>
+      <label class="field">Email (opsional)<input type="email" name="email"></label>
+      <label class="field">Password (min. 8)<input type="password" name="password" minlength="8" required autocomplete="new-password"></label>
+      <label class="field">Role<select name="role"><option value="warga">Warga</option><option value="rt">Ketua RT</option><option value="rw">Staff RW</option></select></label>
+      <label class="field">No. RT (untuk role RT)<input name="rt" maxlength="3" placeholder="03"></label>
+      <label class="field full">KK (untuk role Warga)
+        <select name="family_id"><option value="">— Pilih KK —</option><% families.forEach(function (f) { %><option value="<%= f.id %>"><%= f.kepala_keluarga %> — <%= f.no_kk %> (RT <%= f.rt %>)</option><% }) %></select>
+      </label>
+    </div>
+    <div class="actions"><button class="btn primary" type="submit">Buat Akun</button></div>
+  </form>
+</details>
+<div class="card">
+  <div class="card-head"><h3>Pengguna Sistem (Multi User & Hak Akses)</h3></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nama</th><th>Username</th><th>Email</th><th>Role</th><th>RT</th><th>Aksi</th></tr></thead>
+      <tbody>
+        <% users.forEach(function (x) { %>
+        <tr>
+          <td data-label="Nama"><strong><%= x.name %></strong></td><td data-label="Username"><%= x.username %></td><td data-label="Email"><%= x.email || '-' %></td>
+          <td data-label="Role"><%= roleLabel(x.role) %></td><td data-label="RT"><%= x.rt || '-' %></td>
+          <td class="acts">
+            <% if (x.id !== user.id) { %>
+            <form method="post" action="/pengaturan/users/<%= x.id %>/hapus" data-confirm="Hapus akun ini?">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="icon-btn red" type="submit" title="Hapus"><%- icon('trash', 16) %></button>
+            </form>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<% } %>
+<%- include('../partials/footer') %>

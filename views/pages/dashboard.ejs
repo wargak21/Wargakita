@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+<section class="hero">
+  <div>
+    <small>Selamat Datang,</small>
+    <h1><%= user.name %></h1>
+    <p>Kelola data warga, surat-menyurat, iuran, dan informasi lingkungan lebih mudah melalui sistem RT/RW.</p>
+  </div>
+  <div class="hero-art"><%- icon('home', 96) %></div>
+</section>
+
+<div class="stats-grid">
+  <% cards.forEach(function (c) { %><%- include('../partials/stat', c) %><% }) %>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Grafik Pembayaran Iuran <%= year %></h3><span class="muted small">Total terkumpul per bulan</span></div>
+    <div class="chart">
+      <% months.forEach(function (m) { %>
+        <div class="bar-col">
+          <div class="bar-track"><div class="bar" style="height:<%= max ? Math.max(2, Math.round(m.total / max * 100)) : 0 %>%" title="<%= rupiah(m.total) %>"></div></div>
+          <span><%= m.label %></span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Pengumuman Terbaru</h3><a class="link" href="/pengumuman">Lihat Semua</a></div>
+    <% if (!ann.length) { %><p class="muted">Belum ada pengumuman.</p><% } %>
+    <ul class="list">
+      <% ann.forEach(function (a) { %>
+        <li><span class="dot"><%- icon('bell', 16) %></span><div><strong><%= a.judul %></strong><small><%= tanggal(a.tanggal) %></small></div></li>
+      <% }) %>
+    </ul>
+  </div>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Akses Cepat</h3></div>
+    <div class="quick">
+      <a class="q blue" href="/surat/baru"><%- icon('file', 26) %><span>Buat Surat</span></a>
+      <a class="q green" href="/warga"><%- icon('users', 26) %><span>Data Warga</span></a>
+      <a class="q orange" href="/iuran"><%- icon('dollar', 26) %><span>Bayar Iuran</span></a>
+      <a class="q red" href="/pengaduan"><%- icon('message', 26) %><span>Pengaduan</span></a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Ringkasan Keuangan</h3><span class="muted small">Bulan ini</span></div>
+    <div class="fin">
+      <div><span class="muted">Pemasukan</span><strong class="pos"><%= rupiah(fin.masuk) %></strong></div>
+      <div><span class="muted">Pengeluaran</span><strong class="neg"><%= rupiah(fin.keluar) %></strong></div>
+      <div><span class="muted">Saldo</span><strong><%= rupiah(fin.masuk - fin.keluar) %></strong></div>
+    </div>
+  </div>
+</div>
+<%- include('../partials/footer') %>

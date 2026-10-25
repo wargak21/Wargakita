@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1>Pembayaran Iuran</h1><p class="muted">Dashboard / Pembayaran Iuran</p></div></div>
+<div class="stats-grid three">
+  <%- include('../partials/stat', { label: 'Total Tagihan', value: rupiah(sum.tagihan), ic: 'dollar', color: 'green' }) %>
+  <%- include('../partials/stat', { label: 'Terkumpul', value: rupiah(sum.lunas), ic: 'check', color: 'blue' }) %>
+  <%- include('../partials/stat', { label: 'Belum Bayar', value: rupiah(sum.belum), ic: 'x', color: 'red' }) %>
+</div>
+<form class="card filters" method="get" action="/iuran">
+  <label class="field inline">Periode<input type="month" name="periode" value="<%= f.periode %>" data-autosubmit></label>
+  <% if (user.role === 'rw') { %>
+  <select name="rt" data-autosubmit><option value="">Semua RT</option><% rtList.forEach(function (r) { %><option value="<%= r %>" <%= f.rt === r ? 'selected' : '' %>>RT <%= r %></option><% }) %></select>
+  <% } %>
+  <label class="input-ic grow"><%- icon('search') %><input type="text" name="q" value="<%= f.q %>" placeholder="Cari nama / no. KK"></label>
+  <button class="btn primary" type="submit">Tampilkan</button>
+</form>
+<% if (user.role !== 'warga') { %>
+<form class="card filters" method="post" action="/iuran/generate">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <strong>Buat tagihan bulanan</strong>
+  <label class="field inline">Periode<input type="month" name="periode" value="<%= f.periode || todayStr().slice(0, 7) %>" required></label>
+  <label class="field inline">Nominal (Rp)<input type="number" name="jumlah" min="0" step="1000" value="<%= profil.iuran_bulanan || 100000 %>"></label>
+  <button class="btn primary" type="submit"><%- icon('plus') %> Generate Tagihan</button>
+</form>
+<% } %>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Kepala Keluarga</th><th>No. KK</th><th>RT/RW</th><th>Periode</th><th>Jumlah</th><th>Status</th><th>Tgl Bayar</th><% if (user.role !== 'warga') { %><th>Aksi</th><% } %></tr></thead>
+      <tbody>
+        <% if (!rows.length) { %><tr><td colspan="8" class="empty">Belum ada tagihan pada periode ini.</td></tr><% } %>
+        <% rows.forEach(function (r) { %>
+        <tr>
+          <td data-label="Kepala Keluarga"><strong><%= r.kepala_keluarga %></strong></td>
+          <td data-label="No. KK"><%= r.no_kk %></td>
+          <td data-label="RT/RW"><%= r.rt %>/<%= r.rw %></td>
+          <td data-label="Periode"><%= bulanTahun(r.periode) %></td>
+          <td data-label="Jumlah"><%= rupiah(r.jumlah) %></td>
+          <td data-label="Status"><span class="badge <%= badge(r.status) %>"><%= r.status %></span></td>
+          <td data-label="Tgl Bayar"><%= tanggal(r.tgl_bayar) %></td>
+          <% if (user.role !== 'warga') { %>
+          <td class="acts">
+            <% if (r.status !== 'Lunas') { %>
+            <form method="post" action="/iuran/<%= r.id %>/lunas" data-confirm="Tandai tagihan ini lunas?">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="btn sm primary" type="submit"><%- icon('check', 14) %> Lunas</button>
+            </form>
+            <% } %>
+          </td>
+          <% } %>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<%- include('../partials/footer') %>

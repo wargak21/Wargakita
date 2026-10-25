@@ -1,0 +1,30 @@
+<%
+const nav = [
+  ['/', 'Dashboard', 'home', 'dashboard'],
+  ['/warga', 'Data Warga', 'users', 'warga'],
+  ['/kk', 'Kartu Keluarga', 'card', 'kk'],
+  ['/surat', 'Surat Pengantar', 'file', 'surat'],
+  ['/iuran', 'Pembayaran Iuran', 'dollar', 'iuran'],
+  ['/pengaduan', 'Pengaduan Warga', 'message', 'pengaduan'],
+  ['/pengumuman', 'Informasi & Pengumuman', 'bell', 'pengumuman'],
+  ['/keuangan', 'Laporan Keuangan', 'chart', 'keuangan'],
+  ['/profil', 'Profil RT/RW', 'user', 'profil'],
+  ['/pengaturan', 'Pengaturan', 'sliders', 'pengaturan'],
+];
+%>
+<aside class="sidebar" id="sidebar">
+  <a href="/" class="brand">
+    <span class="brand-ic"><%- icon('home', 22) %></span>
+    <span class="brand-text">Sistem Informasi<br>RT/RW</span>
+  </a>
+  <nav>
+    <% nav.forEach(function (n) { %>
+      <a href="<%= n[0] %>" class="nav-item<%= (locals.active === n[3]) ? ' active' : '' %>"><%- icon(n[2]) %><span><%= n[1] %></span></a>
+    <% }) %>
+  </nav>
+  <div class="sidebar-foot">
+    <strong>RT <%= user.rt || '-' %> / RW <%= user.rw || '-' %></strong>
+    <small>Kelurahan <%= profil.kelurahan || '-' %></small>
+  </div>
+</aside>
+<div class="sidebar-backdrop" data-toggle="sidebar"></div>

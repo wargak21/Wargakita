@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1>Informasi & Pengumuman</h1><p class="muted">Dashboard / Pengumuman</p></div></div>
+<% if (user.role !== 'warga') { %>
+<details class="card">
+  <summary class="btn primary"><%- icon('plus') %> Buat Pengumuman</summary>
+  <form class="form" method="post" action="/pengumuman">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <div class="form-grid">
+      <label class="field full">Judul<input name="judul" required maxlength="150"></label>
+      <label class="field full">Isi<textarea name="isi" rows="4"></textarea></label>
+    </div>
+    <div class="actions"><button class="btn primary" type="submit">Publikasikan</button></div>
+  </form>
+</details>
+<% } %>
+<% if (!rows.length) { %><div class="card"><p class="muted">Belum ada pengumuman.</p></div><% } %>
+<% rows.forEach(function (a) { %>
+<article class="card ann">
+  <div class="card-head">
+    <h3><%= a.judul %></h3>
+    <% if (user.role !== 'warga') { %>
+    <form method="post" action="/pengumuman/<%= a.id %>/hapus" data-confirm="Hapus pengumuman ini?">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <button class="icon-btn red" type="submit" title="Hapus"><%- icon('trash', 16) %></button>
+    </form>
+    <% } %>
+  </div>
+  <small class="muted"><%= tanggal(a.tanggal) %><%= a.penulis ? ' · ' + a.penulis : '' %></small>
+  <% if (a.isi) { %><p class="pre"><%= a.isi %></p><% } %>
+</article>
+<% }) %>
+<%- include('../partials/footer') %>

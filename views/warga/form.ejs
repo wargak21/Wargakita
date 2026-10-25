@@ -1,0 +1,26 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1><%= item ? 'Ubah Warga' : 'Tambah Warga' %></h1><p class="muted">Dashboard / Data Warga / <%= item ? 'Ubah' : 'Tambah' %></p></div></div>
+<form class="card form" method="post" action="<%= item ? '/warga/' + item.id : '/warga' %>">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="form-grid">
+    <label class="field">Kartu Keluarga
+      <select name="family_id" required>
+        <option value="">— Pilih KK —</option>
+        <% families.forEach(function (f) { %><option value="<%= f.id %>" <%= item && item.family_id === f.id ? 'selected' : '' %>><%= f.kepala_keluarga %> — <%= f.no_kk %> (RT <%= f.rt %>)</option><% }) %>
+      </select>
+    </label>
+    <label class="field">NIK (16 digit)<input name="nik" required pattern="\d{16}" maxlength="16" value="<%= item ? item.nik : '' %>"></label>
+    <label class="field">Nama Lengkap<input name="nama" required value="<%= item ? item.nama : '' %>"></label>
+    <label class="field">Jenis Kelamin
+      <select name="jenis_kelamin"><option value="L" <%= item && item.jenis_kelamin === 'L' ? 'selected' : '' %>>Laki-laki</option><option value="P" <%= item && item.jenis_kelamin === 'P' ? 'selected' : '' %>>Perempuan</option></select>
+    </label>
+    <label class="field">Tempat Lahir<input name="tempat_lahir" value="<%= item ? item.tempat_lahir || '' : '' %>"></label>
+    <label class="field">Tanggal Lahir<input type="date" name="tgl_lahir" value="<%= item ? item.tgl_lahir || '' : '' %>"></label>
+    <label class="field">Hubungan dalam KK<input name="hubungan" placeholder="Kepala Keluarga / Istri / Anak" value="<%= item ? item.hubungan || '' : '' %>"></label>
+    <label class="field">Status
+      <select name="status"><option <%= item && item.status === 'Nonaktif' ? '' : 'selected' %>>Aktif</option><option <%= item && item.status === 'Nonaktif' ? 'selected' : '' %>>Nonaktif</option></select>
+    </label>
+  </div>
+  <div class="actions"><a class="btn" href="/warga">Batal</a><button class="btn primary" type="submit">Simpan</button></div>
+</form>
+<%- include('../partials/footer') %>

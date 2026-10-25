@@ -1,0 +1,12 @@
+<%- include('../partials/header') %>
+<div class="page-head"><div><h1>Import Data Warga</h1><p class="muted">Dashboard / Data Warga / Import</p></div></div>
+<form class="card form" method="post" action="/warga/import">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <p>Unggah file <strong>CSV</strong> dengan header:</p>
+  <p><code>nik,nama,jenis_kelamin,tempat_lahir,tgl_lahir,hubungan,no_kk,status</code></p>
+  <p class="muted small">No. KK harus sudah terdaftar di menu Kartu Keluarga. Format tanggal YYYY-MM-DD. NIK yang sudah ada dilewati. Maksimal 1000 baris.</p>
+  <label class="field">Pilih file CSV<input type="file" accept=".csv,text/csv" data-csv-file="csvtext"></label>
+  <label class="field">Atau tempel isi CSV<textarea name="csv" id="csvtext" rows="8" required></textarea></label>
+  <div class="actions"><a class="btn" href="/warga">Batal</a><button class="btn primary" type="submit"><%- icon('upload') %> Import</button></div>
+</form>
+<%- include('../partials/footer') %>
