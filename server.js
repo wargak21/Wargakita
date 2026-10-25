@@ -1,6 +1,7 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
 const PDFDocument = require('pdfkit');
@@ -18,10 +19,26 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('trust proxy', 1);
+
 app.use(session({
+  store: new pgSession({
+    pool,
+    tableName: 'user_sessions',
+    createTableIfMissing: true,
+    pruneSessionInterval: 900
+  }),
+  name: 'wargakita.sid',
   secret: process.env.SESSION_SECRET || 'dev-only-change-this-secret',
-  resave: false, saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 8*60*60*1000 }
+  resave: false,
+  saveUninitialized: false,
+  proxy: true,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 8 * 60 * 60 * 1000
+  }
 }));
 app.use((req, res, next) => { res.locals.user = req.session.user || null; res.locals.path = req.path; next(); });
 
@@ -53,8 +70,28 @@ app.post('/login',async(req,res)=>{
     const rows=await query('SELECT * FROM users WHERE email=? LIMIT 1',[email]);
     if(!rows.length || !await bcrypt.compare(req.body.password||'',rows[0].password_hash))
       return res.status(401).render('login',{error:'Email atau password tidak sesuai.'});
-    const u=rows[0]; req.session.user={id:u.id,name:u.name,email:u.email,role:u.role,rt_number:u.rt_number,rw_number:u.rw_number,family_id:u.family_id};
-    res.redirect('/dashboard');
+    const u = rows[0];
+
+    req.session.user = {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      rt_number: u.rt_number,
+      rw_number: u.rw_number,
+      family_id: u.family_id
+    };
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('Gagal menyimpan session:', err);
+        return res.status(500).render('login', {
+          error: 'Sesi login gagal disimpan. Silakan coba lagi.'
+        });
+      }
+
+      return res.redirect('/dashboard');
+    });
   } catch(e) { console.error(e); res.status(500).render('login',{error:'Database belum siap. Pastikan konfigurasi .env dan schema.sql sudah dijalankan.'}); }
 });
 app.post('/logout',auth,(req,res)=>req.session.destroy(()=>res.redirect('/login')));
@@ -171,3 +208,4 @@ app.post('/pengaturan',roles('rw'),async(req,res)=>{
 app.use((req,res)=>res.status(404).render('error',{message:'Halaman tidak ditemukan.'}));
 const port=Number(process.env.PORT||3000);
 app.listen(port,()=>console.log(`RT/RW Digital berjalan di http://localhost:${port}`));
+
