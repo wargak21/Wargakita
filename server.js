@@ -2,18 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 const PDFDocument = require('pdfkit');
 const path = require('path');
 
 const app = express();
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || '127.0.0.1',
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'rt_rw_digital',
-  waitForConnections: true, connectionLimit: 10, queueLimit: 0
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL
+    ? { rejectUnauthorized: false }
+    : undefined,
+  max: 10
 });
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -26,7 +25,19 @@ app.use(session({
 }));
 app.use((req, res, next) => { res.locals.user = req.session.user || null; res.locals.path = req.path; next(); });
 
-async function query(sql, params = []) { const [rows] = await pool.execute(sql, params); return rows; }
+async function query(sql, params = []) {
+  let index = 0;
+  const pgSql = sql
+    .replace(/"([^"]+)"/g, "'$1'")
+    .replace(/SUM\(r\.gender='Laki-laki'\)/g,
+      "COUNT(*) FILTER (WHERE r.gender='Laki-laki')")
+    .replace(/SUM\(r\.gender='Perempuan'\)/g,
+      "COUNT(*) FILTER (WHERE r.gender='Perempuan')")
+    .replace(/\?/g, () => "$" + (++index));
+
+  const result = await pool.query(pgSql, params);
+  return result.rows;
+}
 function auth(req,res,next){ if(!req.session.user) return res.redirect('/login'); next(); }
 function roles(...allowed){ return (req,res,next)=> { if(!req.session.user) return res.redirect('/login'); if(!allowed.includes(req.session.user.role)) return res.status(403).render('error',{message:'Anda tidak memiliki akses ke halaman ini.'}); next(); }; }
 function scopeResidents(user, alias='r') {
